@@ -819,20 +819,22 @@
         }
 
         function toggleFullscreen() {
-            if (!currentVideoElement) return;
+            const player = document.getElementById('videoPlayer');
+            if (!player) return;
             
             if (!document.fullscreenElement && 
                 !document.webkitFullscreenElement && 
-                !document.mozFullScreenElement) {
+                !document.mozFullScreenElement && 
+                !document.msFullscreenElement) {
                 
-                if (currentVideoElement.requestFullscreen) {
-                    currentVideoElement.requestFullscreen();
-                } else if (currentVideoElement.webkitRequestFullscreen) {
-                    currentVideoElement.webkitRequestFullscreen();
-                } else if (currentVideoElement.mozRequestFullScreen) {
-                    currentVideoElement.mozRequestFullScreen();
-                } else if (currentVideoElement.msRequestFullscreen) {
-                    currentVideoElement.msRequestFullscreen();
+                if (player.requestFullscreen) {
+                    player.requestFullscreen();
+                } else if (player.webkitRequestFullscreen) {
+                    player.webkitRequestFullscreen();
+                } else if (player.mozRequestFullScreen) {
+                    player.mozRequestFullScreen();
+                } else if (player.msRequestFullscreen) {
+                    player.msRequestFullscreen();
                 }
             } else {
                 if (document.exitFullscreen) {
