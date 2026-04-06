@@ -195,37 +195,172 @@
             height: 100%;
             background: black;
             z-index: 9999;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
             justify-content: center;
             align-items: center;
         }
-        .video-player video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+        
+        .video-container video {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
         }
-        .video-controls {
+        
+        .video-controls-container {
             position: absolute;
-            top: 20px;
-            right: 100px;
-            z-index: 10000;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        .fullscreen-btn {
-            background: rgba(255,255,255,0.2);
+        
+        .video-player:hover .video-controls-container,
+        .video-player.show-controls .video-controls-container {
+            opacity: 1;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #e50914;
+            width: 0%;
+            position: relative;
+            transition: height 0.1s;
+        }
+        
+        .progress-bar-container:hover .progress-bar {
+            height: 6px;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: #e50914;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .progress-bar-container:hover .progress-bar::after {
+            opacity: 1;
+        }
+        
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        
+        .controls-left, .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .control-btn {
+            background: none;
             border: none;
             color: white;
-            width: 50px;
-            height: 50px;
-            font-size: 24px;
             cursor: pointer;
-            border-radius: 50%;
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.3s;
+            transition: transform 0.2s;
         }
-        .fullscreen-btn:hover {
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .control-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+        
+        .time-display {
+            font-size: 14px;
+            color: #fff;
+            font-family: monospace;
+        }
+        
+        .video-title {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            max-width: 80%;
+        }
+        
+        .video-player:hover .video-title,
+        .video-player.show-controls .video-title {
+            opacity: 1;
+        }
+        
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .volume-slider {
+            width: 0;
+            overflow: hidden;
+            transition: width 0.3s;
+        }
+        
+        .volume-container:hover .volume-slider {
+            width: 100px;
+        }
+        
+        .volume-slider input[type="range"] {
+            width: 100px;
+            height: 4px;
+            -webkit-appearance: none;
             background: rgba(255,255,255,0.3);
+            outline: none;
         }
+        
+        .volume-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
         .close-video {
             position: absolute;
             top: 20px;
@@ -241,13 +376,26 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
+        
+        .video-player:hover .close-video,
+        .video-player.show-controls .close-video {
+            opacity: 1;
+        }
+        
         .error-message {
             color: #e50914;
             text-align: center;
             padding: 20px;
             font-size: 1rem;
             max-width: 80%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10001;
         }
     </style>
 </head>
@@ -275,11 +423,55 @@
     </div>
 
     <div id="videoPlayer" class="video-player">
-        <div class="video-controls">
-            <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Pełny ekran">⛶</button>
-        </div>
         <div class="close-video" onclick="stopVideo()">✕</div>
-        <div id="playerContainer" style="width:100%; height:100%;"></div>
+        <div class="video-title" id="videoTitleDisplay"></div>
+        <div class="video-container">
+            <video id="currentVideo"></video>
+        </div>
+        <div class="video-controls-container">
+            <div class="progress-bar-container" id="progressBarContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="controls-row">
+                <div class="controls-left">
+                    <button class="control-btn" id="playPauseBtn" onclick="togglePlayPause()">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                    <button class="control-btn" onclick="skipBackward()">
+                        <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                    </button>
+                    <button class="control-btn" onclick="skipForward()">
+                        <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
+                    </button>
+                    <div class="volume-container">
+                        <button class="control-btn" onclick="toggleMute()">
+                            <svg id="volumeIcon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                        </button>
+                        <div class="volume-slider">
+                            <input type="range" id="volumeSlider" min="0" max="100" value="100" onchange="changeVolume(this.value)">
+                        </div>
+                    </div>
+                    <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+                </div>
+                <div class="controls-right">
+                    <button class="control-btn" onclick="nextEpisode()" title="Następny odcinek">
+                        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                    </button>
+                    <button class="control-btn" title="Lista odtwarzania">
+                        <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+                    </button>
+                    <button class="control-btn" title="Napisy">
+                        <svg viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v7h2v-7H11zm5 0h-1.5v-.5h-2v3h2V13H16v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v7h2v-7H16z"/></svg>
+                    </button>
+                    <button class="control-btn" title="Ustawienia">
+                        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L5.09 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    </button>
+                    <button class="control-btn" onclick="toggleFullscreen()">
+                        <svg id="fullscreenIcon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div id="errorMsg" class="error-message" style="display: none;"></div>
     </div>
 
@@ -352,6 +544,9 @@
         const mainContent = document.getElementById('main-content');
         let currentSeries = null;
         let currentVideoElement = null;
+        let currentEpisodeIndex = 0;
+        let currentEpisodes = [];
+        let controlsTimeout;
 
         function init() {
             renderHero();
@@ -447,9 +642,10 @@
             list.innerHTML = '';
 
             if(seasonData) {
+                currentEpisodes = seasonData.episodes;
                 seasonData.episodes.forEach((ep, index) => {
                     list.innerHTML += `
-                        <div class="episode-item" onclick="playVideo('${ep.video}')">
+                        <div class="episode-item" onclick="playVideo('${ep.video}', ${index})">
                             <img src="img/${currentSeries.poster}" class="ep-thumb" onerror="this.style.background='#333'">
                             <div class="ep-title">${ep.title}</div>
                             <div class="ep-num">Odcinek ${index + 1}</div>
@@ -459,30 +655,28 @@
             }
         }
 
-        function playVideo(videoFilename) {
+        function playVideo(videoFilename, episodeIndex = 0) {
             closeModal();
+            currentEpisodeIndex = episodeIndex;
             const player = document.getElementById('videoPlayer');
-            const container = document.getElementById('playerContainer');
             const errorMsg = document.getElementById('errorMsg');
+            const videoTitleDisplay = document.getElementById('videoTitleDisplay');
             
             player.style.display = 'flex';
-            container.innerHTML = '';
             errorMsg.style.display = 'none';
+            
+            if (currentEpisodes[episodeIndex]) {
+                videoTitleDisplay.textContent = currentEpisodes[episodeIndex].title;
+            }
 
+            const video = document.getElementById('currentVideo');
+            currentVideoElement = video;
+            
             const pathsToTry = [
                 `video/${videoFilename}`,
                 `./video/${videoFilename}`,
                 videoFilename
             ];
-
-            let videoElement = document.createElement('video');
-            videoElement.id = 'currentVideo';
-            videoElement.controls = true;
-            videoElement.autoplay = true;
-            videoElement.style.width = '100%';
-            videoElement.style.height = '100%';
-            
-            currentVideoElement = videoElement;
 
             let currentPathIndex = 0;
 
@@ -493,38 +687,152 @@
                     return;
                 }
 
-                videoElement.src = pathsToTry[currentPathIndex];
-                videoElement.load();
+                video.src = pathsToTry[currentPathIndex];
+                video.load();
                 currentPathIndex++;
             }
 
-            videoElement.onerror = function() {
+            video.onerror = function() {
                 tryNextPath();
             };
 
-            videoElement.addEventListener('dblclick', toggleFullscreen);
+            video.addEventListener('timeupdate', updateProgress);
+            video.addEventListener('loadedmetadata', updateDuration);
+            video.addEventListener('ended', videoEnded);
+            video.addEventListener('click', togglePlayPause);
+            
+            document.getElementById('progressBarContainer').addEventListener('click', seekVideo);
+            
+            video.addEventListener('play', () => {
+                updatePlayPauseButton();
+            });
+            
+            video.addEventListener('pause', () => {
+                updatePlayPauseButton();
+            });
 
-            container.appendChild(videoElement);
+            player.addEventListener('mousemove', showControls);
+            player.addEventListener('click', showControls);
+            
+            video.play();
             tryNextPath();
         }
 
-        function toggleFullscreen() {
-            const video = document.getElementById('currentVideo');
+        function togglePlayPause() {
+            if (!currentVideoElement) return;
             
-            if (!video) return;
+            if (currentVideoElement.paused) {
+                currentVideoElement.play();
+            } else {
+                currentVideoElement.pause();
+            }
+            updatePlayPauseButton();
+        }
 
+        function updatePlayPauseButton() {
+            const btn = document.getElementById('playPauseBtn');
+            if (currentVideoElement && currentVideoElement.paused) {
+                btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            } else {
+                btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            }
+        }
+
+        function skipBackward() {
+            if (!currentVideoElement) return;
+            currentVideoElement.currentTime = Math.max(0, currentVideoElement.currentTime - 10);
+        }
+
+        function skipForward() {
+            if (!currentVideoElement) return;
+            currentVideoElement.currentTime = Math.min(currentVideoElement.duration, currentVideoElement.currentTime + 10);
+        }
+
+        function updateProgress() {
+            if (!currentVideoElement) return;
+            const progress = (currentVideoElement.currentTime / currentVideoElement.duration) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            updateTimeDisplay();
+        }
+
+        function updateDuration() {
+            updateTimeDisplay();
+        }
+
+        function updateTimeDisplay() {
+            if (!currentVideoElement) return;
+            const current = formatTime(currentVideoElement.currentTime);
+            const duration = formatTime(currentVideoElement.duration || 0);
+            document.getElementById('timeDisplay').textContent = `${current} / ${duration}`;
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function seekVideo(e) {
+            if (!currentVideoElement) return;
+            const container = document.getElementById('progressBarContainer');
+            const rect = container.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            currentVideoElement.currentTime = pos * currentVideoElement.duration;
+        }
+
+        function toggleMute() {
+            if (!currentVideoElement) return;
+            currentVideoElement.muted = !currentVideoElement.muted;
+            updateVolumeIcon();
+        }
+
+        function changeVolume(value) {
+            if (!currentVideoElement) return;
+            currentVideoElement.volume = value / 100;
+            currentVideoElement.muted = value == 0;
+            updateVolumeIcon();
+        }
+
+        function updateVolumeIcon() {
+            const icon = document.getElementById('volumeIcon');
+            if (!currentVideoElement) return;
+            
+            if (currentVideoElement.muted || currentVideoElement.volume === 0) {
+                icon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+            } else if (currentVideoElement.volume < 0.5) {
+                icon.innerHTML = '<path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/>';
+            } else {
+                icon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+            }
+        }
+
+        function nextEpisode() {
+            if (currentEpisodeIndex < currentEpisodes.length - 1) {
+                const nextEpisode = currentEpisodes[currentEpisodeIndex + 1];
+                playVideo(nextEpisode.video, currentEpisodeIndex + 1);
+            }
+        }
+
+        function videoEnded() {
+            nextEpisode();
+        }
+
+        function toggleFullscreen() {
+            if (!currentVideoElement) return;
+            
             if (!document.fullscreenElement && 
                 !document.webkitFullscreenElement && 
                 !document.mozFullScreenElement) {
                 
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                } else if (video.webkitRequestFullscreen) {
-                    video.webkitRequestFullscreen();
-                } else if (video.mozRequestFullScreen) {
-                    video.mozRequestFullScreen();
-                } else if (video.msRequestFullscreen) {
-                    video.msRequestFullscreen();
+                if (currentVideoElement.requestFullscreen) {
+                    currentVideoElement.requestFullscreen();
+                } else if (currentVideoElement.webkitRequestFullscreen) {
+                    currentVideoElement.webkitRequestFullscreen();
+                } else if (currentVideoElement.mozRequestFullScreen) {
+                    currentVideoElement.mozRequestFullScreen();
+                } else if (currentVideoElement.msRequestFullscreen) {
+                    currentVideoElement.msRequestFullscreen();
                 }
             } else {
                 if (document.exitFullscreen) {
@@ -539,13 +847,27 @@
             }
         }
 
+        function showControls() {
+            const player = document.getElementById('videoPlayer');
+            player.classList.add('show-controls');
+            
+            clearTimeout(controlsTimeout);
+            controlsTimeout = setTimeout(() => {
+                player.classList.remove('show-controls');
+            }, 3000);
+        }
+
         function stopVideo() {
+            if (currentVideoElement) {
+                currentVideoElement.pause();
+                currentVideoElement.src = '';
+            }
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             }
             document.getElementById('videoPlayer').style.display = 'none';
-            document.getElementById('playerContainer').innerHTML = '';
             currentVideoElement = null;
+            clearTimeout(controlsTimeout);
         }
 
         if (document.readyState === 'loading') {
