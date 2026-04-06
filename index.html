@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WikiMovies</title>
+    <style>
+        :root {
+            --bg-color: #141414;
+            --primary: #e50914;
+            --text: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 4%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+            z-index: 100;
+            transition: 0.3s;
+        }
+        header.black { background-color: var(--bg-color); }
+
+        .logo { color: var(--primary); font-size: 25px; font-weight: bold; text-transform: uppercase; cursor: pointer; }
+
+        .hero {
+            height: 80vh;
+            background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-left: 4%;
+        }
+        .hero::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100px;
+            background: linear-gradient(to top, var(--bg-color), transparent);
+        }
+        .hero-content { z-index: 10; max-width: 600px; }
+        .hero-title { font-size: 3rem; margin-bottom: 10px; }
+        .hero-desc { font-size: 1.2rem; margin-bottom: 20px; text-shadow: 1px 1px 2px black; }
+        
+        .season-badge {
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        .season-badge-red {
+            background-color: #e50914;
+            color: white;
+            padding: 8px 15px;
+            font-weight: bold;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+        .season-badge-white {
+            background-color: white;
+            color: black;
+            padding: 8px 15px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .btn {
+            background: white; color: black; border: none; padding: 10px 25px;
+            font-size: 1.1rem; font-weight: bold; cursor: pointer; border-radius: 4px;
+        }
+        .btn:hover { opacity: 0.8; }
+
+        .row { padding: 20px 4%; }
+        .row h2 { font-size: 1.4rem; margin-bottom: 15px; }
+        
+        .slider {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+        .slider::-webkit-scrollbar { height: 5px; }
+        .slider::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
+
+        .card {
+            min-width: 200px;
+            height: 300px;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card:hover { transform: scale(1.05); z-index: 20; }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
+
+        .card-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 5;
+        }
+        .card-badge-red {
+            background-color: #e50914;
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        .card-badge-white {
+            background-color: white;
+            color: black;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        
+        .modal-box {
+            background: #181818;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            border-radius: 8px;
+            overflow-y: auto;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 30px; cursor: pointer; z-index: 10; color: white;
+        }
+        
+        .modal-banner {
+            height: 300px;
+            background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .modal-banner::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100px;
+            background: linear-gradient(to top, #181818, transparent);
+        }
+        .modal-info { padding: 20px 40px; }
+        
+        select {
+            background: #333; color: white; border: 1px solid #555;
+            padding: 10px; font-size: 1rem; border-radius: 4px; margin-bottom: 20px; width: 100%;
+        }
+
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        .episode-item {
+            background: #2f2f2f;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .episode-item:hover { background: #404040; }
+        .ep-thumb { width: 100%; height: 100px; background: #000; margin-bottom: 10px; object-fit: cover; }
+        .ep-title { font-size: 0.9rem; font-weight: bold; }
+        .ep-num { font-size: 0.8rem; color: #aaa; }
+
+        .video-player {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .video-player video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .video-controls {
+            position: absolute;
+            top: 20px;
+            right: 100px;
+            z-index: 10000;
+        }
+        .fullscreen-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        .fullscreen-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .close-video {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 10000;
+            background: rgba(0,0,0,0.5);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .error-message {
+            color: #e50914;
+            text-align: center;
+            padding: 20px;
+            font-size: 1rem;
+            max-width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+    <header id="navbar">
+        <div class="logo" onclick="location.reload()">WikiMovies</div>
+    </header>
+
+    <div id="main-content"></div>
+
+    <div id="seriesModal" class="modal">
+        <div class="modal-box">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="mBanner" class="modal-banner"></div>
+            <div class="modal-info">
+                <div id="seasonBadgeContainer"></div>
+                <h1 id="mTitle" style="margin-bottom: 10px;"></h1>
+                <p id="mDesc" style="color: #ccc; margin-bottom: 20px;"></p>
+                <label>Wybierz Sezon:</label>
+                <select id="seasonSelect" onchange="loadEpisodes()"></select>
+                <div id="episodesList" class="episodes-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="videoPlayer" class="video-player">
+        <div class="video-controls">
+            <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Pełny ekran">⛶</button>
+        </div>
+        <div class="close-video" onclick="stopVideo()">✕</div>
+        <div id="playerContainer" style="width:100%; height:100%;"></div>
+        <div id="errorMsg" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script>
+        const myDatabase = [
+            {
+                id: 1,
+                title: "Ninjago Nowa Generacja",
+                description: "Fanowska Seria Opowiadająca O Nowej Generacji Ninja",
+                banner: "postergen.png",
+                poster: "postergen.png",
+                badge: "new_season",
+                seasons: [
+                    {
+                        number: 1,
+                        episodes: [
+                            { title: "Odcinek 1 - Śmierć Lloyda", video: "Film1.mp4" },
+                            { title: "Odcinek 2 - Przepowiednia", video: "film2.mp4" },
+                            { title: "Odcinek 3 - WikiX I Rozmowa Z Królem Technologii", video: "film3.mp4" },
+                            { title: "Odcinek 4 - Król Technologii", video: "film4.mp4" },
+                            { title: "Odcinek 5 - Arin", video: "film5.mp4" },
+                            { title: "Odcinek 6 - Mistrz Arin", video: "film6.mp4" },
+                            { title: "Odcinek 7 - Nowa Ninja Ognia", video: "film7.mp4" },
+                            { title: "Odcinek 8 - Atak Króla Technologii Część 1", video: "film8.mp4" },
+                            { title: "Odcinek 9 - Atak Króla Technologii Część 2", video: "film9.mp4" },
+                            { title: "Odcinek 10 - Katowice", video: "film10.mp4" },
+                            { title: "Odcinek 11 - Początki Wojny Technologii", video: "film11.mp4" },
+                            { title: "Odcinek 12 - Misja", video: "film12.mp4" },
+                            { title: "Odcinek 13 - Przekaźnik", video: "film13.mp4" },
+                            { title: "Odcinek 14 - Początki Walki", video: "film14.mp4" },
+                            { title: "Odcinek 15 - Arin I Sora Uwięzieni", video: "film15.mp4" },
+                            { title: "Odcinek 16 - Misja Część 1", video: "film16.mp4" },
+                            { title: "Odcinek 17 - Misja Część 2", video: "film17.mp4" },
+                            { title: "Odcinek 18 - Początki Technologiczne", video: "film18.mp4" },
+                            { title: "Odcinek 19 - Jesteśmy Bohaterami Część 1", video: "film19.mp4" },
+                            { title: "Odcinek 20 - Jesteśmy Bohaterami Część 2", video: "film20.mp4" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "WikiX Vlog",
+                description: "Moje Wakacyjne Przygody",
+                banner: "vlogi.jpeg",
+                poster: "vlogi.jpeg",
+                badge: "new_season",
+                seasons: [
+                    {
+                        number: 1,
+                        episodes: [
+                            { title: "Pakowanie", video: "Vlog0.mp4" },
+                            { title: "Jakie Atrakcje Będą Na Chorwacji", video: "vlog0.5.mp4" },
+                            { title: "Wyjazd", video: "vlog1.mp4" },
+                            { title: "Dzień 1 - Plaża Część 1", video: "vlog2.mp4" },
+                            { title: "Dzień 2 - Łódką Przez Morze", video: "vlog3.mp4" },
+                            { title: "Dzień 3 - We Włoszech (Foggia)", video: "vlog4.mp4" },
+                            { title: "Dzień 4 - Na Plaży Część 2", video: "vlog5.mp4" },
+                            { title: "Dzień 5 - Na Plaży Część 3", video: "vlog6.mp4" },
+                            { title: "Dzień 6 - Pożegananie Z Chorwackim Morzem", video: "vlog7.mp4" },
+                            { title: "Dzień 7 - Żegnaj Chorwacjo Witajcie Węgry", video: "vlog8.mp4" },
+                            { title: "Dzień 8 - Ostatni Dzień Na Węgrzech", video: "vlog9.mp4" },
+                            { title: "Dzień 9 - Żegnajcie Węgry Witaj Polsko", video: "vlog10.mp4" }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Ninjago Powstanie Smoków",
+                description: "Oryginalny Serial Od LEGO Nie Odemnie:Doszło do zjednoczenia wielu legendarnych krain, lecz łącząca je więź jest niestabilna. Mistrz Ninja Spinjitzu musi wyszkolić nowe pokolenie bohaterów, którzy odnajdą Smoki Żywiołów mogące uratować planetę, zanim siły zła wykorzystają tę samą smoczą energię do zniszczenia tego nowego świata.",
+                banner: "drs4.png",
+                poster: "drs4.png",
+                badge: "none",
+                seasons: [
+                    {
+                        number: 1,
+                        episodes: [
+                            { title: "Odcinek 1 - Fuzja Część 1", video: "S01E01.mp4" },
+                            { title: "Odcinek 2 - Fuzja Część 2", video: "S01E02.mp4" },
+                            { title: "Odcinek 3 - Rozdrożny Karnawał", video: "S01E03.mp4" },
+                            { title: "Odcinek 4 - W Sekretnym Wymiarze", video: "S01E04.mp4" },
+                            { title: "Odcinek 5 - Skrybowie Przeznaczenia", video: "S01E05.mp4" },
+                            { title: "Odcinek 6 - Powrót Do Imperium", video: "S01E06.mp4" },
+                            { title: "Odcinek 7 - Bezmyślna Bestia", video: "S01E07.mp4" },
+                            { title: "Odcinek 8 -   Ja Będę Zagrożeniem", video: "S01E08.mp4" },
+                            { title: "Odcinek 9 - Wewnętrzny Spokój", video: "S01E09.mp4" },
+                            { title: "Odcinek 10 - Bitwa W Drugim Klasztorze", video: "S01E10.mp4" },
+                            { title: "Odcinek 11 - Świątynia Smoczych Rdzeni", video: "S01E.mp4" },
+                            { title: "Odcinek 12 - Wkrótce", video: "smoki12.mp4" },
+                            { title: "Odcinek 13 - Wkrótce", video: "smoki13.mp4" },
+                            { title: "Odcinek 14 - Wkrótce", video: "smoki14.mp4" },
+                            { title: "Odcinek 15 - Wkrótce", video: "smoki15.mp4" },
+                            { title: "Odcinek 16 - Wkrótce", video: "smoki16.mp4" },
+                            { title: "Odcinek 17 - Wkrótce", video: "smoki17.mp4" },
+                            { title: "Odcinek 18 - Wkrótce", video: "smoki18.mp4" },
+                            { title: "Odcinek 19 - Wkrótce", video: "smoki19.mp4" },
+                            { title: "Odcinek 20 - Wkrótce", video: "smoki20.mp4" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        const mainContent = document.getElementById('main-content');
+        let currentSeries = null;
+        let currentVideoElement = null;
+
+        function init() {
+            renderHero();
+            renderGrid();
+            
+            window.addEventListener('scroll', () => {
+                const nav = document.getElementById('navbar');
+                if(window.scrollY > 50) nav.classList.add('black');
+                else nav.classList.remove('black');
+            });
+        }
+
+        function renderHero() {
+            if(myDatabase.length === 0) return;
+            const first = myDatabase[0];
+            mainContent.innerHTML += `
+                <div class="hero" style="background-image: url('img/${first.banner}')" onerror="this.style.background='linear-gradient(45deg, #1a1a1a, #2a2a2a)'">
+                    <div class="hero-content">
+                        ${first.badge === 'new_season' ? `
+                            <div class="season-badge">
+                                <div class="season-badge-red">Nowy sezon</div>
+                                <div class="season-badge-white">wkrótce</div>
+                            </div>
+                        ` : ''}
+                        <h1 class="hero-title">${first.title}</h1>
+                        <p class="hero-desc">${first.description}</p>
+                        <button class="btn" onclick="openModal(${first.id})">▶ Odtwórz</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGrid() {
+            let html = `<div class="row"><h2>Wszystkie Serie</h2><div class="slider">`;
+            myDatabase.forEach(series => {
+                html += `
+                    <div class="card" onclick="openModal(${series.id})">
+                        ${series.badge === 'new_season' ? `
+                            <div class="card-badge">
+                                <div class="card-badge-red">Nowy sezon</div>
+                                <div class="card-badge-white">wkrótce</div>
+                            </div>
+                        ` : ''}
+                        <img src="img/${series.poster}" alt="${series.title}" onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+            mainContent.innerHTML += html;
+        }
+
+        function openModal(id) {
+            currentSeries = myDatabase.find(s => s.id === id);
+            if(!currentSeries) return;
+
+            document.getElementById('mTitle').innerText = currentSeries.title;
+            document.getElementById('mDesc').innerText = currentSeries.description;
+            document.getElementById('mBanner').style.backgroundImage = `url('img/${currentSeries.banner}')`;
+            
+            const badgeContainer = document.getElementById('seasonBadgeContainer');
+            if(currentSeries.badge === 'new_season') {
+                badgeContainer.innerHTML = `
+                    <div class="season-badge">
+                        <div class="season-badge-red">Nowy sezon</div>
+                        <div class="season-badge-white">wkrótce</div>
+                    </div>
+                `;
+            } else {
+                badgeContainer.innerHTML = '';
+            }
+            
+            const select = document.getElementById('seasonSelect');
+            select.innerHTML = '';
+            currentSeries.seasons.forEach(season => {
+                const opt = document.createElement('option');
+                opt.value = season.number;
+                opt.innerText = `Sezon ${season.number}`;
+                select.appendChild(opt);
+            });
+
+            loadEpisodes();
+            document.getElementById('seriesModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('seriesModal').classList.remove('active');
+        }
+
+        function loadEpisodes() {
+            const seasonNum = parseInt(document.getElementById('seasonSelect').value);
+            const seasonData = currentSeries.seasons.find(s => s.number === seasonNum);
+            const list = document.getElementById('episodesList');
+            list.innerHTML = '';
+
+            if(seasonData) {
+                seasonData.episodes.forEach((ep, index) => {
+                    list.innerHTML += `
+                        <div class="episode-item" onclick="playVideo('${ep.video}')">
+                            <img src="img/${currentSeries.poster}" class="ep-thumb" onerror="this.style.background='#333'">
+                            <div class="ep-title">${ep.title}</div>
+                            <div class="ep-num">Odcinek ${index + 1}</div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function playVideo(videoFilename) {
+            closeModal();
+            const player = document.getElementById('videoPlayer');
+            const container = document.getElementById('playerContainer');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            player.style.display = 'flex';
+            container.innerHTML = '';
+            errorMsg.style.display = 'none';
+
+            const pathsToTry = [
+                `video/${videoFilename}`,
+                `./video/${videoFilename}`,
+                videoFilename
+            ];
+
+            let videoElement = document.createElement('video');
+            videoElement.id = 'currentVideo';
+            videoElement.controls = true;
+            videoElement.autoplay = true;
+            videoElement.style.width = '100%';
+            videoElement.style.height = '100%';
+            
+            currentVideoElement = videoElement;
+
+            let currentPathIndex = 0;
+
+            function tryNextPath() {
+                if (currentPathIndex >= pathsToTry.length) {
+                    errorMsg.style.display = 'block';
+                    errorMsg.innerHTML = `❌ Nie można odtworzyć wideo<br>Plik: ${videoFilename}`;
+                    return;
+                }
+
+                videoElement.src = pathsToTry[currentPathIndex];
+                videoElement.load();
+                currentPathIndex++;
+            }
+
+            videoElement.onerror = function() {
+                tryNextPath();
+            };
+
+            videoElement.addEventListener('dblclick', toggleFullscreen);
+
+            container.appendChild(videoElement);
+            tryNextPath();
+        }
+
+        function toggleFullscreen() {
+            const video = document.getElementById('currentVideo');
+            
+            if (!video) return;
+
+            if (!document.fullscreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.mozFullScreenElement) {
+                
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
+                } else if (video.mozRequestFullScreen) {
+                    video.mozRequestFullScreen();
+                } else if (video.msRequestFullscreen) {
+                    video.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        function stopVideo() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            document.getElementById('videoPlayer').style.display = 'none';
+            document.getElementById('playerContainer').innerHTML = '';
+            currentVideoElement = null;
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
