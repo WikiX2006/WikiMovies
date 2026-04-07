@@ -35,6 +35,24 @@
 
         .logo { color: var(--primary); font-size: 25px; font-weight: bold; text-transform: uppercase; cursor: pointer; }
 
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-item {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .nav-item:hover {
+            color: #b3b3b3;
+        }
+
         .hero {
             height: 80vh;
             background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
@@ -396,12 +414,212 @@
             transform: translate(-50%, -50%);
             z-index: 10001;
         }
+
+        .new-popular-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 300;
+            overflow-y: auto;
+        }
+        .new-popular-modal.active { display: block; }
+
+        .new-popular-header {
+            padding: 20px 4%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: rgba(20,20,20,0.95);
+            z-index: 10;
+        }
+
+        .new-popular-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: black;
+            border-color: white;
+        }
+
+        .tab-btn .icon {
+            font-size: 16px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px 4%;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .featured-video {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 40px;
+            background: #181818;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .featured-video video {
+            width: 100%;
+            display: block;
+        }
+
+        .featured-info {
+            padding: 20px;
+        }
+
+        .featured-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .featured-meta {
+            color: #b3b3b3;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .featured-desc {
+            color: #d2d2d2;
+            line-height: 1.5;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .content-card {
+            background: #2f2f2f;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .content-card:hover {
+            transform: scale(1.05);
+        }
+
+        .content-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .content-card-info {
+            padding: 15px;
+        }
+
+        .content-card-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .content-card-meta {
+            color: #b3b3b3;
+            font-size: 14px;
+        }
+
+        .top-badge {
+            background: #e50914;
+            color: white;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 8px;
+            border-radius: 2px;
+        }
+
+        .rank-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e50914;
+            margin-right: 10px;
+        }
+
+        .top-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #1f1f1f;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .top-item:hover {
+            background: #2f2f2f;
+        }
+
+        .top-item img {
+            width: 100px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+
+        .top-item-info {
+            flex: 1;
+        }
+
+        .top-item-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .top-item-desc {
+            color: #b3b3b3;
+            font-size: 14px;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
 
     <header id="navbar">
         <div class="logo" onclick="location.reload()">MJKMovies</div>
+        <div class="nav-menu">
+            <div class="nav-item" onclick="openNewPopular()">NOWE I POPULARNE</div>
+        </div>
     </header>
 
     <div id="main-content"></div>
@@ -418,6 +636,66 @@
                 <select id="seasonSelect" onchange="loadEpisodes()"></select>
                 <div id="episodesList" class="episodes-grid"></div>
             </div>
+        </div>
+    </div>
+
+    <div id="newPopularModal" class="new-popular-modal">
+        <div class="new-popular-header">
+            <h2 style="margin: 0;">Nowe i popularne</h2>
+            <span class="close-btn" onclick="closeNewPopular()" style="position: static;">✕</span>
+        </div>
+        
+        <div class="new-popular-tabs">
+            <button class="tab-btn active" onclick="switchTab('wkrotce')">
+                <span class="icon">🎬</span> Wkrótce
+            </button>
+            <button class="tab-btn" onclick="switchTab('wszyscy')">
+                <span class="icon">🔥</span> Wszyscy oglądają
+            </button>
+            <button class="tab-btn" onclick="switchTab('gry')">
+                <span class="icon">🎮</span> Gry
+            </button>
+            <button class="tab-btn" onclick="switchTab('top10seriali')">
+                <span class="icon">📺</span> Top 10 seriali
+            </button>
+            <button class="tab-btn" onclick="switchTab('top10filmow')">
+                <span class="icon">🎥</span> Top 10 filmów
+            </button>
+        </div>
+
+        <div id="tab-wkrotce" class="tab-content active">
+            <div class="featured-video">
+                <video poster="img/polaczeni.jpg" controls>
+                    <source src="video/" type="video/mp4">
+                </video>
+                <div class="featured-info">
+                    <div class="featured-title">Ninjago Połączeni</div>
+                    <div class="featured-meta">Wkrótce • 10+</div>
+                    <div class="featured-desc">
+                        Ninja Łączą Siły Z Postaciami Spoza swojego świata
+            </div>
+            <h3 style="margin-bottom: 20px;">Wkrótce dostępne</h3>
+            <div class="content-grid" id="wkrotce-grid"></div>
+        </div>
+
+        <div id="tab-wszyscy" class="tab-content">
+            <h3 style="margin-bottom: 20px;">Wszyscy oglądają</h3>
+            <div class="content-grid" id="wszyscy-grid"></div>
+        </div>
+
+        <div id="tab-gry" class="tab-content">
+            <h3 style="margin-bottom: 20px;">Gry</h3>
+            <div class="content-grid" id="gry-grid"></div>
+        </div>
+
+        <div id="tab-top10seriali" class="tab-content">
+            <h3 style="margin-bottom: 20px;">Top 10 seriali</h3>
+            <div id="top10seriali-list"></div>
+        </div>
+
+        <div id="tab-top10filmow" class="tab-content">
+            <h3 style="margin-bottom: 20px;">Top 10 filmów</h3>
+            <div id="top10filmow-list"></div>
         </div>
     </div>
 
@@ -540,6 +818,41 @@
             }
         ];
 
+        const popularContent = {
+            wkrotce: [
+                { title: "Ninjago Nowa Generacja", desc: "Sezon 2 już wkrótce", img: "postergen.png", type: "series" },
+                { title: "MJK Vlog", desc: "Nowe odcinki wkrótce", img: "vlogi.jpeg", type: "vlog" },
+                { title: "Tyson Fury Live", desc: "Walka na żywo", img: "postergen.png", type: "sport" },
+                { title: "Nowy Film Akcji", desc: "Premiera za tydzień", img: "postergen.png", type: "movie" }
+            ],
+            wszyscy: [
+                { title: "Ninjago Nowa Generacja", desc: "Ogląda 1.2M osób", img: "postergen.png", views: "1.2M" },
+                { title: "MJK Vlog", desc: "Ogląda 856K osób", img: "vlogi.jpeg", views: "856K" },
+                { title: "Top 10 Gier 2024", desc: "Ogląda 543K osób", img: "postergen.png", views: "543K" },
+                { title: "Recenzje Filmowe", desc: "Ogląda 432K osób", img: "postergen.png", views: "432K" }
+            ],
+            gry: [
+                { title: "Minecraft Seria", desc: "Odcinek 45", img: "postergen.png", type: "gameplay" },
+                { title: "Fortnite Battle Royale", desc: "Nowy sezon", img: "postergen.png", type: "gameplay" },
+                { title: "GTA V Roleplay", desc: "Na żywo", img: "postergen.png", type: "gameplay" },
+                { title: "FIFA 24", desc: "Turniej", img: "postergen.png", type: "gameplay" }
+            ],
+            top10seriali: [
+                { rank: 1, title: "Ninjago Nowa Generacja", desc: "Fanowska seria o nowych ninja", img: "postergen.png" },
+                { rank: 2, title: "MJK Vlog", desc: "Przygody z podróży", img: "vlogi.jpeg" },
+                { rank: 3, title: "Technologiczne Cuda", desc: "Przyszłość technologii", img: "postergen.png" },
+                { rank: 4, title: "Sportowe Emocje", desc: "Najlepsze momenty", img: "postergen.png" },
+                { rank: 5, title: "Gaming Legends", desc: "Profesjonalni gracze", img: "postergen.png" }
+            ],
+            top10filmow: [
+                { rank: 1, title: "Akcja na Maxa", desc: "Thriller akcji 2024", img: "postergen.png" },
+                { rank: 2, title: "Komedia Roku", desc: "Najśmieszniejszy film", img: "postergen.png" },
+                { rank: 3, title: "Dramat Rodzinny", desc: "Wzruszająca historia", img: "postergen.png" },
+                { rank: 4, title: "Sci-Fi Przyszłość", desc: "Podróż w czasie", img: "postergen.png" },
+                { rank: 5, title: "Horror Nocny", desc: "Straszne historie", img: "postergen.png" }
+            ]
+        };
+
         const mainContent = document.getElementById('main-content');
         let currentSeries = null;
         let currentVideoElement = null;
@@ -550,12 +863,115 @@
         function init() {
             renderHero();
             renderGrid();
+            renderNewPopularContent();
             
             window.addEventListener('scroll', () => {
                 const nav = document.getElementById('navbar');
                 if(window.scrollY > 50) nav.classList.add('black');
                 else nav.classList.remove('black');
             });
+        }
+
+        function renderNewPopularContent() {
+            // Wkrótce
+            const wkrotceGrid = document.getElementById('wkrotce-grid');
+            popularContent.wkrotce.forEach(item => {
+                wkrotceGrid.innerHTML += `
+                    <div class="content-card" onclick="openModal(${item.type === 'series' ? '1' : '2'})">
+                        <img src="img/${item.img}" onerror="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">
+                        <div class="content-card-info">
+                            <div class="content-card-title">${item.title}</div>
+                            <div class="content-card-meta">${item.desc}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Wszyscy oglądają
+            const wszyscyGrid = document.getElementById('wszyscy-grid');
+            popularContent.wszyscy.forEach(item => {
+                wszyscyGrid.innerHTML += `
+                    <div class="content-card" onclick="openModal(${item.title.includes('Ninjago') ? '1' : '2'})">
+                        <img src="img/${item.img}" onerror="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">
+                        <div class="content-card-info">
+                            <div class="content-card-title">${item.title}</div>
+                            <div class="content-card-meta">${item.desc}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Gry
+            const gryGrid = document.getElementById('gry-grid');
+            popularContent.gry.forEach(item => {
+                gryGrid.innerHTML += `
+                    <div class="content-card">
+                        <img src="img/${item.img}" onerror="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">
+                        <div class="content-card-info">
+                            <div class="content-card-title">${item.title}</div>
+                            <div class="content-card-meta">${item.desc}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Top 10 Seriali
+            const top10SerialiList = document.getElementById('top10seriali-list');
+            popularContent.top10seriali.forEach(item => {
+                top10SerialiList.innerHTML += `
+                    <div class="top-item" onclick="openModal(${item.rank === 1 ? '1' : '2'})">
+                        <span class="rank-number">${item.rank}</span>
+                        <img src="img/${item.img}" onerror="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">
+                        <div class="top-item-info">
+                            <div class="top-item-title">${item.title}</div>
+                            <div class="top-item-desc">${item.desc}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Top 10 Filmów
+            const top10FilmowList = document.getElementById('top10filmow-list');
+            popularContent.top10filmow.forEach(item => {
+                top10FilmowList.innerHTML += `
+                    <div class="top-item">
+                        <span class="rank-number">${item.rank}</span>
+                        <img src="img/${item.img}" onerror="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">
+                        <div class="top-item-info">
+                            <div class="top-item-title">${item.title}</div>
+                            <div class="top-item-desc">${item.desc}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openNewPopular() {
+            document.getElementById('newPopularModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNewPopular() {
+            document.getElementById('newPopularModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.closest('.tab-btn').classList.add('active');
         }
 
         function renderHero() {
@@ -656,6 +1072,7 @@
 
         function playVideo(videoFilename, episodeIndex = 0) {
             closeModal();
+            closeNewPopular();
             currentEpisodeIndex = episodeIndex;
             const player = document.getElementById('videoPlayer');
             const errorMsg = document.getElementById('errorMsg');
