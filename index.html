@@ -41,7 +41,7 @@
             align-items: center;
         }
 
-        /* ZMIANA: Styl dla przycisku NOWE I POPULARNE, aby był przesunięty w lewo (wypełniając przestrzeń) */
+        /* ZMIANA: Styl dla przycisku, aby był widoczny i przesunięty w konkretne miejsce */
         .nav-item {
             color: white;
             text-decoration: none;
@@ -54,7 +54,10 @@
             transition: all 0.3s ease;
             background-color: rgba(0, 0, 0, 0.3);
             letter-spacing: 0.5px;
-            margin-right: auto; /* To przesuwa element w lewo, zajmując wolną przestrzeń */
+            
+            /* Pozycjonowanie absolutne względem nagłówka */
+            position: absolute;
+            left: 220px; /* ZMIANA: Zwiększone z 150px na 220px, aby odsunąć od logo */
         }
 
         .nav-item:hover {
@@ -628,7 +631,7 @@
     <header id="navbar">
         <div class="logo" onclick="location.reload()">MJKMovies</div>
         <div class="nav-menu">
-            <!-- ZMIANA: Dodano klasę, która jest teraz ostylowana wyżej w CSS -->
+            <!-- ZMIANA: Przycisk przesunięty w prawo (left: 220px) aby nie zasłaniać logo -->
             <div class="nav-item" onclick="openNewPopular()">Wkrótce</div>
         </div>
     </header>
@@ -659,6 +662,7 @@
         <div class="new-popular-tabs">
             <button class="tab-btn active" onclick="switchTab('wkrotce')">
                 <span class="icon">🎬</span> Wkrótce
+            </button>
         </div>
 
         <div id="tab-wkrotce" class="tab-content active">
