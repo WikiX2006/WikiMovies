@@ -41,20 +41,20 @@
             align-items: center;
         }
 
-        /* ZMIANA: Styl dla przycisku NOWE I POPULARNE, aby był lepiej widoczny i przesunięty */
+        /* ZMIANA: Styl dla przycisku NOWE I POPULARNE, aby był przesunięty w lewo (wypełniając przestrzeń) */
         .nav-item {
             color: white;
             text-decoration: none;
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            padding: 8px 12px; /* Zmniejszony padding boczny */
+            padding: 8px 12px;
             border: 1px solid rgba(255, 255, 255, 0.4);
             border-radius: 4px;
             transition: all 0.3s ease;
             background-color: rgba(0, 0, 0, 0.3);
             letter-spacing: 0.5px;
-            margin-right: 10px; /* Przesunięcie w lewo od krawędzi */
+            margin-right: auto; /* To przesuwa element w lewo, zajmując wolną przestrzeń */
         }
 
         .nav-item:hover {
@@ -652,14 +652,13 @@
 
     <div id="newPopularModal" class="new-popular-modal">
         <div class="new-popular-header">
-            <h2 style="margin: 0;">Nowe i popularne</h2>
+            <h2 style="margin: 0;">Wkrótce</h2>
             <span class="close-btn" onclick="closeNewPopular()" style="position: static;">✕</span>
         </div>
         
         <div class="new-popular-tabs">
             <button class="tab-btn active" onclick="switchTab('wkrotce')">
                 <span class="icon">🎬</span> Wkrótce
-            </button>
         </div>
 
         <div id="tab-wkrotce" class="tab-content active">
