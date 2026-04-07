@@ -41,16 +41,25 @@
             align-items: center;
         }
 
+        /* ZMIANA: Styl dla przycisku NOWE I POPULARNE, aby był lepiej widoczny */
         .nav-item {
             color: white;
             text-decoration: none;
             font-size: 14px;
+            font-weight: bold;
             cursor: pointer;
-            transition: color 0.3s;
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
         }
 
         .nav-item:hover {
-            color: #b3b3b3;
+            background-color: white;
+            color: black;
+            border-color: white;
         }
 
         .hero {
@@ -618,6 +627,7 @@
     <header id="navbar">
         <div class="logo" onclick="location.reload()">MJKMovies</div>
         <div class="nav-menu">
+            <!-- ZMIANA: Dodano klasę, która jest teraz ostylowana wyżej w CSS -->
             <div class="nav-item" onclick="openNewPopular()">NOWE I POPULARNE</div>
         </div>
     </header>
@@ -661,6 +671,8 @@
                     <div class="featured-meta">Wkrótce • 10+</div>
                     <div class="featured-desc">
                         Ninja Łączą Siły Z Postaciami Spoza swojego świata
+                    </div>
+                </div>
             </div>
             <h3 style="margin-bottom: 20px;">Wkrótce dostępne</h3>
             <div class="content-grid" id="wkrotce-grid"></div>
