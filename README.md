@@ -1,1 +1,1 @@
-# WikiMovies - Strona Ze Wszystkimi Seriami WikiXa
+# MJKMovies - Strona Ze Wszystkimi Seriami MJK_PRO
