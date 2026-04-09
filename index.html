@@ -41,7 +41,6 @@
             align-items: center;
         }
 
-        /* ZMIANA: Styl dla przycisku, aby był widoczny i przesunięty w konkretne miejsce */
         .nav-item {
             color: white;
             text-decoration: none;
@@ -54,10 +53,8 @@
             transition: all 0.3s ease;
             background-color: rgba(0, 0, 0, 0.3);
             letter-spacing: 0.5px;
-            
-            /* Pozycjonowanie absolutne względem nagłówka */
             position: absolute;
-            left: 220px; /* ZMIANA: Zwiększone z 150px na 220px, aby odsunąć od logo */
+            left: 220px;
         }
 
         .nav-item:hover {
@@ -631,7 +628,6 @@
     <header id="navbar">
         <div class="logo" onclick="location.reload()">MJKMovies</div>
         <div class="nav-menu">
-            <!-- ZMIANA: Przycisk przesunięty w prawo (left: 220px) aby nie zasłaniać logo -->
             <div class="nav-item" onclick="openNewPopular()">Wkrótce</div>
         </div>
     </header>
@@ -680,26 +676,6 @@
             </div>
             <h3 style="margin-bottom: 20px;">Wkrótce dostępne</h3>
             <div class="content-grid" id="wkrotce-grid"></div>
-        </div>
-
-        <div id="tab-wszyscy" class="tab-content">
-            <h3 style="margin-bottom: 20px;">Wszyscy oglądają</h3>
-            <div class="content-grid" id="wszyscy-grid"></div>
-        </div>
-
-        <div id="tab-gry" class="tab-content">
-            <h3 style="margin-bottom: 20px;">Gry</h3>
-            <div class="content-grid" id="gry-grid"></div>
-        </div>
-
-        <div id="tab-top10seriali" class="tab-content">
-            <h3 style="margin-bottom: 20px;">Top 10 seriali</h3>
-            <div id="top10seriali-list"></div>
-        </div>
-
-        <div id="tab-top10filmow" class="tab-content">
-            <h3 style="margin-bottom: 20px;">Top 10 filmów</h3>
-            <div id="top10filmow-list"></div>
         </div>
     </div>
 
@@ -817,6 +793,18 @@
                             { title: "Dzień 8 - Ostatni Dzień Na Węgrzech", video: "vlog9.mp4" },
                             { title: "Dzień 9 - Żegnajcie Węgry Witaj Polsko", video: "vlog10.mp4" }
                         ]
+                    },
+                    {
+                        number: 2,
+                        episodes: [
+                            { title: "Odcinek 1 - Dzień 0 - Pakowanie (Wkrótce)", video: "vlog_s2_ep1.mp4" },
+                            { title: "Odcinek 2  Dzień 0.5  - Wyjazd (Wkrótce)", video: "vlog_s2_ep2.mp4" },
+                            { title: "Odcinek 3 - Dzień 1 - (Wkrótce)", video: "vlog_s2_ep3.mp4" },
+                            { title: "Odcinek 4 - Dzień 2 - (Wkrótce)", video: "vlog_s2_ep4.mp4" },
+                            { title: "Odcinek 5 - Dzień 3 - (Wkrótce)", video: "vlog_s2_ep5.mp4" },
+                            { title: "Odcinek 6 - Dzień 4  - (Wkrótce)", video: "vlog_s2_ep6.mp4" },
+                            { title: "Odcinek 7 - Dzień 5 (Ostatni)  - Powrót Do Domu (Wkrótce)", video: "vlog_s2_ep7.mp4" }
+                        ]
                     }
                 ]
             }
@@ -824,34 +812,8 @@
 
         const popularContent = {
             wkrotce: [
-                { title: "Ninjago Nowa Generacja", desc: "Sezon 2 już wkrótce", img: "postergen.png", type: "series" },
-                { title: "MJK Vlog", desc: "Nowe odcinki wkrótce", img: "vlogi.jpeg", type: "vlog" }
-            ],
-            wszyscy: [
-                { title: "Ninjago Nowa Generacja", desc: "Ogląda 1.2M osób", img: "postergen.png", views: "1.2M" },
-                { title: "MJK Vlog", desc: "Ogląda 856K osób", img: "vlogi.jpeg", views: "856K" },
-                { title: "Top 10 Gier 2024", desc: "Ogląda 543K osób", img: "postergen.png", views: "543K" },
-                { title: "Recenzje Filmowe", desc: "Ogląda 432K osób", img: "postergen.png", views: "432K" }
-            ],
-            gry: [
-                { title: "Minecraft Seria", desc: "Odcinek 45", img: "postergen.png", type: "gameplay" },
-                { title: "Fortnite Battle Royale", desc: "Nowy sezon", img: "postergen.png", type: "gameplay" },
-                { title: "GTA V Roleplay", desc: "Na żywo", img: "postergen.png", type: "gameplay" },
-                { title: "FIFA 24", desc: "Turniej", img: "postergen.png", type: "gameplay" }
-            ],
-            top10seriali: [
-                { rank: 1, title: "Ninjago Nowa Generacja", desc: "Fanowska seria o nowych ninja", img: "postergen.png" },
-                { rank: 2, title: "MJK Vlog", desc: "Przygody z podróży", img: "vlogi.jpeg" },
-                { rank: 3, title: "Technologiczne Cuda", desc: "Przyszłość technologii", img: "postergen.png" },
-                { rank: 4, title: "Sportowe Emocje", desc: "Najlepsze momenty", img: "postergen.png" },
-                { rank: 5, title: "Gaming Legends", desc: "Profesjonalni gracze", img: "postergen.png" }
-            ],
-            top10filmow: [
-                { rank: 1, title: "Akcja na Maxa", desc: "Thriller akcji 2024", img: "postergen.png" },
-                { rank: 2, title: "Komedia Roku", desc: "Najśmieszniejszy film", img: "postergen.png" },
-                { rank: 3, title: "Dramat Rodzinny", desc: "Wzruszająca historia", img: "postergen.png" },
-                { rank: 4, title: "Sci-Fi Przyszłość", desc: "Podróż w czasie", img: "postergen.png" },
-                { rank: 5, title: "Horror Nocny", desc: "Straszne historie", img: "postergen.png" }
+                { title: "Ninjago Nowa Generacja", desc: "Sezon 2 już wkrótce (2 Maja 2026)", img: "postergen.png", type: "series" },
+                { title: "MJK Vlog", desc: "Nowy Sezon 2 Wkrótce (10 Kwietnia 20)", img: "vlogi.jpeg", type: "vlog" }
             ]
         };
 
@@ -875,7 +837,6 @@
         }
 
         function renderNewPopularContent() {
-            // Wkrótce
             const wkrotceGrid = document.getElementById('wkrotce-grid');
             popularContent.wkrotce.forEach(item => {
                 wkrotceGrid.innerHTML += `
@@ -889,7 +850,6 @@
                 `;
             });
 
-            // Wszyscy oglądają
             const wszyscyGrid = document.getElementById('wszyscy-grid');
             popularContent.wszyscy.forEach(item => {
                 wszyscyGrid.innerHTML += `
@@ -903,7 +863,6 @@
                 `;
             });
 
-            // Gry
             const gryGrid = document.getElementById('gry-grid');
             popularContent.gry.forEach(item => {
                 gryGrid.innerHTML += `
@@ -917,7 +876,6 @@
                 `;
             });
 
-            // Top 10 Seriali
             const top10SerialiList = document.getElementById('top10seriali-list');
             popularContent.top10seriali.forEach(item => {
                 top10SerialiList.innerHTML += `
@@ -932,7 +890,6 @@
                 `;
             });
 
-            // Top 10 Filmów
             const top10FilmowList = document.getElementById('top10filmow-list');
             popularContent.top10filmow.forEach(item => {
                 top10FilmowList.innerHTML += `
@@ -959,20 +916,13 @@
         }
 
         function switchTab(tabName) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
-            // Remove active class from all buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            
-            // Show selected tab
             document.getElementById('tab-' + tabName).classList.add('active');
-            
-            // Add active class to clicked button
             event.target.closest('.tab-btn').classList.add('active');
         }
 
